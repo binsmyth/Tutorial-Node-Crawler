@@ -1,44 +1,18 @@
-var express = require('express');
 var request = require('request');
 var cheerio = require('cheerio');
-var exphbs = require('express-handlebars');
-var app     = express();
+var URL = require('url-parse');
 
-var hbs = exphbs.create({});
-
-app.engine('handlebars', hbs.engine);
-
-app.set('view engine','handlebars');
-
-var products = [];
-
-
-request('http://www.gadgetsinnepal.com.np/',function(err,res,body){
-	var $ = cheerio.load(body);
-	var productcolxn = {
-		source: "Gadgets in Nepal",
-		link: 'http://www.gadgetsinnepal.com.np/',
-		items:[]
-	};
-
-	$('.recent-module .recent-module .recent-post').each(function(i,obj){
-		var title = $(obj).find('h2 a').text();
-		var link = $(obj).find('h2 a').attr('href');
-		var date = $(obj).find('.post-meta span').text();
-
-		var item = {
-			title: title,
-			link: link,
-			date: date
-		};
-		productcolxn.items.push(item);
-	});
-	products.push(productcolxn);
+var pageToVisit = "http://www.arstechnica.com";
+console.log("Visiting page" + pageToVisit);
+request(pageToVisit, function(error, response, body){
+	if(error) {
+		console.log("Error: " + error);
+	}
+	//Check status code (200 is HTTP OK)
+	console.log("Status code: " + response.statusCode);
+	if(response.statusCode === 200) {
+		//Parse the document body
+		var $ = cheerio.load(body);
+		console.log("Page title: " + $('title').text());
+	}
 });
-
-
-app.get('/', function(req,res){
-	res.render('index',{products: products});
-});
-
-var server = app.listen(3000);
